@@ -57,23 +57,23 @@ No modules.
 | [google_project_iam_member.execution_extra](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.execution_job_runner](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_service_account_iam_member.automation_act_as](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account_iam_member) | resource |
-| [data.google_project.current](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/project) | data source |
+| [google_project.current](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/project) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_artifact_storage"></a> [artifact\_storage](#input\_artifact\_storage) | GCS location (gs://bucket/path) for rendered manifests and logs. Null lets Cloud Deploy create a default bucket | `string` | `null` | no |
-| <a name="input_automation"></a> [automation](#input\_automation) | Optional Cloud Deploy automation that promotes successful releases to the next target. service\_account is the email of a dedicated SA; it is granted clouddeploy.operator on this pipeline and actAs on the execution SA. Null disables automation | `object({ service_account = string target_ids = optional(list(string), ["*"]) promote_wait = optional(string, "0s") })` | `null` | no |
+| <a name="input_automation"></a> [automation](#input\_automation) | Optional Cloud Deploy automation that promotes successful releases to the next target. service\_account is the email of a dedicated SA; it is granted clouddeploy.operator on this pipeline and actAs on the execution SA. Null disables automation | <pre>object({<br/>    service_account = string<br/>    target_ids      = optional(list(string), ["*"])<br/>    promote_wait    = optional(string, "0s")<br/>  })</pre> | `null` | no |
 | <a name="input_description"></a> [description](#input\_description) | Description of the delivery pipeline | `string` | `null` | no |
 | <a name="input_execution_service_account"></a> [execution\_service\_account](#input\_execution\_service\_account) | ID (projects/PROJECT/serviceAccounts/EMAIL) of the dedicated service account Cloud Deploy render/deploy/verify jobs run as | `string` | n/a | yes |
 | <a name="input_execution_service_account_roles"></a> [execution\_service\_account\_roles](#input\_execution\_service\_account\_roles) | Extra project roles for the execution SA so it can deploy to the runtime, e.g. roles/run.developer (Cloud Run) or roles/container.developer (GKE) | `list(string)` | `[]` | no |
-| <a name="input_execution_timeout"></a> [execution\_timeout](#input\_execution\_timeout) | Timeout for each Cloud Deploy job, e.g. \"3600s\" | `string` | `"3600s"` | no |
+| <a name="input_execution_timeout"></a> [execution\_timeout](#input\_execution\_timeout) | Timeout for each Cloud Deploy job, e.g. "3600s" | `string` | `"3600s"` | no |
 | <a name="input_labels"></a> [labels](#input\_labels) | Labels applied to the pipeline, targets and automation | `map(string)` | `{}` | no |
 | <a name="input_location"></a> [location](#input\_location) | Region the pipeline, targets and automation are created in | `string` | `"europe-west2"` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the delivery pipeline | `string` | n/a | yes |
 | <a name="input_releasers"></a> [releasers](#input\_releasers) | IAM members granted roles/clouddeploy.releaser on the pipeline | `list(string)` | `[]` | no |
-| <a name="input_targets"></a> [targets](#input\_targets) | Ordered list of targets; the pipeline promotes through them in this order. Set run\_location (a region) for a Cloud Run target or gke\_cluster (projects/P/locations/L/clusters/C) for a GKE target. require\_approval defaults to true on the last target and false elsewhere | `list(object({ name = string description = optional(string) run_location = optional(string) gke_cluster = optional(string) require_approval = optional(bool) profiles = optional(list(string), []) deploy_parameters = optional(map(string), {}) }))` | n/a | yes |
+| <a name="input_targets"></a> [targets](#input\_targets) | Ordered list of targets; the pipeline promotes through them in this order. Set run\_location (a region) for a Cloud Run target or gke\_cluster (projects/P/locations/L/clusters/C) for a GKE target. require\_approval defaults to true on the last target and false elsewhere | <pre>list(object({<br/>    name              = string<br/>    description       = optional(string)<br/>    run_location      = optional(string)<br/>    gke_cluster       = optional(string)<br/>    require_approval  = optional(bool)<br/>    profiles          = optional(list(string), [])<br/>    deploy_parameters = optional(map(string), {})<br/>  }))</pre> | n/a | yes |
 | <a name="input_worker_pool"></a> [worker\_pool](#input\_worker\_pool) | Private Cloud Build worker pool (projects/P/locations/L/workerPools/W) for Cloud Deploy jobs. Null uses the default pool | `string` | `null` | no |
 
 ## Outputs
