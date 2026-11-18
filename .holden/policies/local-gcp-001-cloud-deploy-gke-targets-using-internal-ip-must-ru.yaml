@@ -1,0 +1,20 @@
+id: LOCAL_GCP_001
+name: Cloud Deploy GKE targets using internal_ip must run jobs on a private worker pool
+principle: reliability
+severity: MEDIUM
+rationale: |
+  With gke.internal_ip = true Cloud Deploy reaches the cluster control plane on its
+  private IP. The default Cloud Build pool has no route to that address, so every
+  deploy job fails unless execution_configs sets a private worker_pool.
+message: |
+  google_clouddeploy_target sets gke.internal_ip = true but execution_configs.worker_pool is not set.
+remediation: |
+  Set execution_configs.worker_pool to a private Cloud Build worker pool peered with
+  the cluster's VPC, or set gke.internal_ip = false for a public-endpoint cluster.
+resources:
+  google_clouddeploy_target:
+    any:
+      - path: gke.internal_ip
+        not_equals: true
+      - path: execution_configs.worker_pool
+        not_null: true

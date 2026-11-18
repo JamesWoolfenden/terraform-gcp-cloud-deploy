@@ -1,0 +1,62 @@
+{
+  "scan_date": "2026-11-18T12:00:00Z",
+  "scan_path": ".",
+  "category": "all",
+  "findings": [
+    {
+      "id": "HOLDEN_AI_001",
+      "status": "fixed",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18",
+      "unresolved_since": null,
+      "suppression_reason": null,
+      "principle": "reliability",
+      "severity": "MEDIUM",
+      "confidence": "high",
+      "title": "GKE targets hardcode internal_ip = true but worker_pool may be null, so deploys cannot reach the control plane",
+      "file": "google_clouddeploy_target.main.tf",
+      "line": 1,
+      "resource": "google_clouddeploy_target.main",
+      "related_resources": [
+        "variable.worker_pool",
+        "variable.targets"
+      ],
+      "explanation": "Every GKE target is created with gke.internal_ip = true, which makes Cloud Deploy talk to the control plane's private IP. var.worker_pool defaults to null (the default Cloud Build pool), which has no network path to a private control-plane address, so render/deploy jobs for GKE targets fail at runtime even though apply succeeds. No rule covers Cloud Deploy targets.",
+      "remediation": "Require var.worker_pool whenever any target sets gke_cluster (lifecycle precondition on google_clouddeploy_target.main), keeping the private-endpoint access path.",
+      "fixable": false
+    },
+    {
+      "id": "HOLDEN_AI_002",
+      "status": "fixed",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18",
+      "unresolved_since": null,
+      "suppression_reason": null,
+      "principle": "reliability",
+      "severity": "MEDIUM",
+      "confidence": "high",
+      "title": "Releasers get clouddeploy.releaser but no actAs on the execution SA, so their releases are rejected",
+      "file": "google_clouddeploy_delivery_pipeline_iam_member.releasers.tf",
+      "line": 1,
+      "resource": "google_clouddeploy_delivery_pipeline_iam_member.releasers",
+      "related_resources": [
+        "google_service_account_iam_member.automation_act_as",
+        "variable.execution_service_account"
+      ],
+      "explanation": "Cloud Deploy requires the principal creating a release or rollout to hold iam.serviceAccounts.actAs on the target execution service account. The module grants that to the automation SA (automation_act_as) but not to var.releasers, so the members the module claims to enable as releasers get PERMISSION_DENIED on release creation unless actAs is granted out of band, typically too broadly at project level.",
+      "remediation": "Grant roles/iam.serviceAccountUser on var.execution_service_account (and only on it) to each member of var.releasers.",
+      "fixable": true,
+      "fix": "resource \"google_service_account_iam_member\" \"releasers_act_as\" {\n  for_each           = toset(var.releasers)\n  service_account_id = var.execution_service_account\n  role               = \"roles/iam.serviceAccountUser\"\n  member             = each.value\n}"
+    }
+  ],
+  "suggested_policies": [
+    {
+      "rationale": "A GKE Cloud Deploy target that reaches the control plane by internal IP without a private worker pool fails every deploy; this is a single-resource attribute combination that holds for any Terraform using google_clouddeploy_target, and no policy covers the type today.",
+      "yaml": "id: LOCAL_GCP_001\nname: Cloud Deploy GKE targets using internal_ip must run jobs on a private worker pool\nprinciple: reliability\nseverity: MEDIUM\nrationale: |\n  With gke.internal_ip = true Cloud Deploy reaches the cluster control plane on its\n  private IP. The default Cloud Build pool has no route to that address, so every\n  deploy job fails unless execution_configs sets a private worker_pool.\nmessage: |\n  google_clouddeploy_target sets gke.internal_ip = true but execution_configs.worker_pool is not set.\nremediation: |\n  Set execution_configs.worker_pool to a private Cloud Build worker pool peered with\n  the cluster's VPC, or set gke.internal_ip = false for a public-endpoint cluster.\nresources:\n  google_clouddeploy_target:\n    any:\n      - path: gke.internal_ip\n        not_equals: true\n      - path: execution_configs.worker_pool\n        not_null: true\n",
+      "status": "installed",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18"
+    }
+  ],
+  "suggested_suppressions": []
+}

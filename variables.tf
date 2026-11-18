@@ -40,7 +40,7 @@ variable "targets" {
     profiles          = optional(list(string), [])
     deploy_parameters = optional(map(string), {})
   }))
-  description = "Ordered list of targets; the pipeline promotes through them in this order. Set run_location (a region) for a Cloud Run target or gke_cluster (projects/P/locations/L/clusters/C) for a GKE target. require_approval defaults to true on the last target and false elsewhere"
+  description = "Ordered list of targets; the pipeline promotes through them in this order. Set run_location (a region) for a Cloud Run target or gke_cluster (projects/P/locations/L/clusters/C) for a GKE target; GKE targets are reached on the internal IP and require var.worker_pool. require_approval defaults to true on the last target and false elsewhere"
 
   validation {
     condition     = length(var.targets) > 0
@@ -149,7 +149,7 @@ variable "automation" {
 
 variable "releasers" {
   type        = list(string)
-  description = "IAM members granted roles/clouddeploy.releaser on the pipeline"
+  description = "IAM members granted roles/clouddeploy.releaser on the pipeline and roles/iam.serviceAccountUser on the execution SA (both are needed to create releases)"
   default     = []
 
   validation {

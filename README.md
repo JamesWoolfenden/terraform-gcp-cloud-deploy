@@ -57,6 +57,7 @@ No modules.
 | [google_project_iam_member.execution_extra](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.execution_job_runner](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_service_account_iam_member.automation_act_as](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account_iam_member) | resource |
+| [google_service_account_iam_member.releasers_act_as](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account_iam_member) | resource |
 | [google_project.current](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/project) | data source |
 
 ## Inputs
@@ -72,8 +73,8 @@ No modules.
 | <a name="input_labels"></a> [labels](#input\_labels) | Labels applied to the pipeline, targets and automation | `map(string)` | `{}` | no |
 | <a name="input_location"></a> [location](#input\_location) | Region the pipeline, targets and automation are created in | `string` | `"europe-west2"` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the delivery pipeline | `string` | n/a | yes |
-| <a name="input_releasers"></a> [releasers](#input\_releasers) | IAM members granted roles/clouddeploy.releaser on the pipeline | `list(string)` | `[]` | no |
-| <a name="input_targets"></a> [targets](#input\_targets) | Ordered list of targets; the pipeline promotes through them in this order. Set run\_location (a region) for a Cloud Run target or gke\_cluster (projects/P/locations/L/clusters/C) for a GKE target. require\_approval defaults to true on the last target and false elsewhere | <pre>list(object({<br/>    name              = string<br/>    description       = optional(string)<br/>    run_location      = optional(string)<br/>    gke_cluster       = optional(string)<br/>    require_approval  = optional(bool)<br/>    profiles          = optional(list(string), [])<br/>    deploy_parameters = optional(map(string), {})<br/>  }))</pre> | n/a | yes |
+| <a name="input_releasers"></a> [releasers](#input\_releasers) | IAM members granted roles/clouddeploy.releaser on the pipeline and roles/iam.serviceAccountUser on the execution SA (both are needed to create releases) | `list(string)` | `[]` | no |
+| <a name="input_targets"></a> [targets](#input\_targets) | Ordered list of targets; the pipeline promotes through them in this order. Set run\_location (a region) for a Cloud Run target or gke\_cluster (projects/P/locations/L/clusters/C) for a GKE target; GKE targets are reached on the internal IP and require var.worker\_pool. require\_approval defaults to true on the last target and false elsewhere | <pre>list(object({<br/>    name              = string<br/>    description       = optional(string)<br/>    run_location      = optional(string)<br/>    gke_cluster       = optional(string)<br/>    require_approval  = optional(bool)<br/>    profiles          = optional(list(string), [])<br/>    deploy_parameters = optional(map(string), {})<br/>  }))</pre> | n/a | yes |
 | <a name="input_worker_pool"></a> [worker\_pool](#input\_worker\_pool) | Private Cloud Build worker pool (projects/P/locations/L/workerPools/W) for Cloud Deploy jobs. Null uses the default pool | `string` | `null` | no |
 
 ## Outputs

@@ -34,4 +34,13 @@ resource "google_clouddeploy_target" "main" {
   }
 
   depends_on = [google_project_iam_member.execution_job_runner]
+
+  lifecycle {
+    # GKE targets reach the control plane on its private IP (internal_ip =
+    # true); the default Cloud Build pool cannot route there.
+    precondition {
+      condition     = length(each.value.gke) == 0 || var.worker_pool != null
+      error_message = "var.worker_pool must be set when any target uses gke_cluster: GKE targets are reached on the control plane's internal IP, which the default Cloud Build pool cannot route to"
+    }
+  }
 }
